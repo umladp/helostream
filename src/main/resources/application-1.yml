@@ -1,0 +1,80 @@
+server:
+  port: 19881 #自定义端口
+  servlet:
+    encoding: 
+      force: true
+      charset: UTF-8
+      enabled: true
+    session:
+      cookie:
+        name: sentinel_dashboard_cookie  
+spring:
+  application:
+    name: helo-consumer
+  cloud:
+    stream: 
+      rocketmq: 
+        binder:
+          name-server: 192.168.134.89:9876 # 访问地址
+        bindings:
+          mybroadcast-in-0:
+            consumer:
+              messageModel: BROADCASTING
+          mybroadcast-out-0:
+            producer:
+              group: you-group1
+          saveOrderInput:
+            consumer:
+              messageModel: BROADCASTING
+          saveOrderOutput:
+            producer:
+              group: saveOrderGroup
+      bindings:
+        myBroadcast-in-0:   # 消费者绑定名称，myBroadcast是自定义的绑定名称，in代表消费者，0是固定写法
+          destination: broadcast-topic   # 对应的真实的 RabbitMQ Exchange
+          content-type: text/plain
+          group: yougroup
+          #consumer:
+           # max-attempts: 3
+
+    function:
+      definition: mybroadcast;
+      
+########## RocketMQ 通用配置
+# 客户端接入点，必填  rocketMQ的连接地址，binder高度抽象
+#spring.cloud.stream.rocketmq.binder.name-server=localhost:9876
+########## Produce Config
+# output 的配置如下：bindings 具体生产消息、消费消息的桥梁
+#spring.cloud.stream.bindings.output.destination=test-topic
+#spring.cloud.stream.bindings.output.contentType=text/plain
+#spring.cloud.stream.bindings.output.group=test-group
+
+########## Consumer Config
+# input 的配置：
+#spring.cloud.stream.bindings.input.destination=test-topic
+#spring.cloud.stream.bindings.input.contentType=text/plain
+#spring.cloud.stream.bindings.input.group=test-group
+
+# 暴露端点info
+info:
+  app: 
+    app.name: helo-consumer
+    company.name: www.yl.com
+    build.artifactId: com.yl.springcloud
+    build.version: 1.0-SNAPSHOT
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: debug
+    com.alibaba.cloud.stream.binder.rocketmq: INFO
+    org.springframework.context.support: debug
+

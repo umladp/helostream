@@ -1,0 +1,78 @@
+server:
+  #address: 192.168.134.1
+  port: 19881
+spring:
+  application:
+    name: helo-stream
+    #profiles:
+    # active:
+    #- prod
+  cloud:
+    stream:
+      default-binder: rabbit1
+      binders:
+        rabbit-channel:
+          binder: rabbit1
+        rabbit1:   #defaultRabbit
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: 192.168.134.89       #rabbitmq 服务器的地址
+                port: 5672           #rabbitmq 服务器端口
+                username: rabbit       #rabbitmq 用户名
+                password: 123456       #rabbitmq 密码
+                virtual-host: /       #虚拟路径           host1
+                connection-timeout: 16000
+      bindings:
+        # 广播消息
+        myBroadcast-in-0:   # 消费者绑定名称，myBroadcast是自定义的绑定名称，in代表消费者，0是固定写法
+          destination: my-broadcast-topic   # 对应的真实的 RabbitMQ Exchange
+          content-type: application/json      #设置消息的类型，本次为json
+          default-binder: rabbit1
+          group: Group12               #分组
+        myBroadcast-out-0:  # 生产者绑定名称，myBroadcast是自定义的绑定名称，out代表生产者，0是固定写法
+          destination: my-broadcast-topic   # 对应的真实的 RabbitMQ Exchange
+          content-type: application/json      #设置消息的类型，本次为json
+          default-binder: rabbit1
+          group: Group12               #分组
+        process-in-0:
+          destination: foo-1
+          group: test-group
+          binder: rabbit1
+        supplier-out-0:
+          destination: foo-1
+          group: test-group
+          binder: rabbit1
+        saveOrderOutput:    #这个是消息通道的名称 --->保存订单输出通道
+          destination: exchange-saveOrder     #exchange名称,交换模式默认是topic;把SpringCloud stream的消息输出通道绑定到RabbitMQ的exchange-saveOrder交换器。
+          content-type: application/json      #设置消息的类型，本次为json
+          default-binder: rabbit1
+          group: saveOrderGroup               #分组
+        saveOrderInput:
+          destination: exchange-saveOrder    #exchange名称,交换模式默认是topic;把SpringCloud stream的消息输出通道绑定到RabbitMQ的exchange-saveOrder交换器。
+          content-type: application/json      #设置消息的类型，本次为json
+          default-binder: rabbit1
+          group: saveOrderGroup
+    function:
+      definition: process;supplier;myBroadcast
+# 暴露端点info
+info:
+  app:
+    app.name: helo-stream
+    company.name: www.yl.com
+    build.artifactId: com.yl.springcloud
+    build.version: 1.0-SNAPSHOT
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+    #logging:
+    # level:
+    #  org.springframework.cloud.gateway: debug
+    # com.springframework.cloud.stream.binder.rabbitmq: INFO
