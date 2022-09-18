@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.apache.rocketmq.common.message.MessageConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -21,6 +23,7 @@ import org.springframework.messaging.support.GenericMessage;
 @ComponentScan(basePackages = {"com.skysoft.mms"})
 @SpringBootApplication
 @Slf4j
+@EnableDubbo
 public class HeloStreamApplication {
 	@Autowired
 	private StreamBridge streamBridge;

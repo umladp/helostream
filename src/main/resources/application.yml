@@ -27,6 +27,38 @@ spring:
           destination: delay
           group: delay-group1
 
+dubbo:
+  application:
+    name: rocketmq-delay-consume-example   #可以与上面的相同。
+  protocol:
+    name: dubbo
+    port: 20882
+    payload: 20971520
+    threads: 50
+
+  registry:
+    #address: 192.168.134.1:21810  #zookeeper://
+    address: 192.168.134.89:2181  #zookeeper://
+    #address: nacos://192.168.134.89:8848
+    timeout: 20000
+    #register: false
+    protocol: zookeeper
+  #dubbo.registry.address = nacos://172.x.x.x:8848
+  scan: #这个扫描是必须要配置的，不然，无法进入spring容器。也就是说spring 的scan不会把dubbo的服务对象进行反转和注入的。
+    base-packages: com.skysoft.mms.dubbo
+  consumer:
+    check: true
+  monitor:
+    protocol: registry
+
+### provider配置 ###
+#  provider:
+#    auth: false
+#    timeout: 10000
+#    retries: 0
+#    version: 1.0.0
+#    group: gm
+
 logging:
   level:
     org.springframework.context.support: debug
